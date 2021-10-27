@@ -5,6 +5,10 @@
 
 # Converts a string to an integer based off of the index in the whitelist characters set.
 # Returns a set of integers
+import numpy as np
+from sympy import Matrix
+
+# integerConversion -- Establishes the character set and converts a string into an array of integers
 def integerConversion(plaintext):
     whitelistCharacters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890,.\/;!@#$%^&*()-_=+| '
 
@@ -17,6 +21,83 @@ def integerConversion(plaintext):
 
     return numberedText
 
+# stringConversion -- Establishes the character set and converts arrays of integers into a string
+def stringConversion(textBlocks):
+    whitelistCharacters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890,.\/;!@#$%^&*()-_=+| '
+    output = ""
+    for array in textBlocks:
+        for x in range(0, len(array)):
+            output = output + whitelistCharacters[int(array[x])]
+
+    print(output + "\n")
+
+
+# CreateKeyMatrix -- Takes the key input string and converts it into a key matrix
+def CreateKeyMatrix(keyInput, matrixSize):
+    keyMatrix = np.zeros(matrixSize*matrixSize)
+    index = 0
+    for char in keyInput:
+        keyMatrix[index] = keyInput[index]
+        index = index + 1
+    keyMatrix = keyMatrix.reshape(matrixSize, matrixSize)
+    return keyMatrix
+
+
+# PadPlaintext -- Pads the plaintext at the end with an arbitrary value 
+# to be evenly divided by the matrix size
+def PadPlaintext(plaintext, matrixSize):
+    remainder = len(plaintext) % matrixSize
+    if remainder > 0:
+        remainder = matrixSize - remainder
+        for i in range(remainder):
+            plaintext += 'X'
+            remainder = remainder - 1
+    return plaintext
+
+
+# SplitTextToBlocks -- Separates the plaintext into n-size blocks for encryption
+def SplitTextToBlocks(numberedText, matrixSize):
+    textMatrix = []
+    offset = 0
+    for i in range(0, int(len(numberedText) / matrixSize)):
+        array = []
+        for x in range(0, matrixSize):
+            array.append(numberedText[offset])
+            offset = offset + 1
+        textMatrix.append(array)
+            
+
+    textMatrix = np.asarray(textMatrix)
+    return textMatrix
+
+# ENCRYPT -- encypts by multiplying the block matrix with the key matrix and 
+# modulo by the number of characters in the set
+def Encrypt(blockText, keyMatrix, matrixSize):
+    cipherMatrix = []
+    for matrix in blockText:
+        cipherValue = (matrix@keyMatrix) % 83
+        cipherMatrix.append(cipherValue)
+    return cipherMatrix
+
+# DECRYPT -- decypts by multiplying the block matrix with the inverse key matrix and 
+# modulo by the number of characters in the set
+def Decrypt(blockText, keyMatrix, matrixSize):
+    plaintextMatrix = []
+    for matrix in blockText:
+        plainTextValue = np.matmul(matrix, keyMatrix)
+        plainTextValue = np.remainder(plainTextValue, 83).flatten()
+        plaintextMatrix.append(plainTextValue)
+    return plaintextMatrix
+
+# findInverseKey -- finds the inverse of the key matrix for decryption
+def FindInverseKey(keyMatrix):
+    inverseKeyMatrix = Matrix(keyMatrix).inv_mod(83)
+    inverseKeyMatrix = np.array(inverseKeyMatrix)
+    inverseKeyMatrix = inverseKeyMatrix.astype(int)
+    return inverseKeyMatrix
+    
+
+
 
 # Driver -- the program assumes good input.  p, q, and e must all be prime
 # numbers.
@@ -25,25 +106,28 @@ if __name__ == '__main__':
    
     # Plaintext
     plaintext = input("Enter plaintext to be encrypted: ")
-    numberedPlaintext = integerConversion(plaintext)
-    
-    # Debug for-loop -- can be removed
-    for number in numberedPlaintext:
-        print(number)
     
     # Key
     keyinput = input("Enter key to be encrypt with: ")
     numberedKey = integerConversion(keyinput)
     
     # Debug for-loop -- can be removed
-    for number in numberedKey:
-        print(number)
+    #for number in numberedKey:
+    #    print(number)
     
     # Matrix Size
     matrixSize = int(input("Enter matrixSize for an n x n matrix: "))
+
+    # Plaintext Padding
+    paddedPlaintext = PadPlaintext(plaintext, matrixSize)
+    numberedPlaintext = integerConversion(paddedPlaintext)
+    
+    # Debug for-loop -- can be removed
+    #for number in numberedPlaintext:
+    #    print(number)
     
     # Check matrix size/key size compatibility
-    while numberedKey < (matrixSize * matrixSize):
+    while len(numberedKey) < (matrixSize * matrixSize):
         print("Invalid Key/Matrix size.")
         
         keyinput = input("Enter key to be encrypt with: ")
@@ -53,9 +137,20 @@ if __name__ == '__main__':
         break
 
     # Step 2. Create encryption matrix with key input
-    # Step 3. Encrypt plaintext with key matrix
-    # Step 4. Invert key matrix
-    # Step 5. Find inverse multiplicative of the determinant
-    # Step 6. Multiply inverse matrix by step 5 and mod
-    # Step 7. Invert key matrix
+    keyMatrix = CreateKeyMatrix(numberedKey, matrixSize)
+    # Step 3. Create n size blocks of the plaintext
+    blockText = SplitTextToBlocks(numberedPlaintext, matrixSize)
+    # Step 4. Encrypt plaintext with key matrix
+    cipherText = Encrypt(blockText, keyMatrix, matrixSize)
+    # Step 5. Print ciphertext
+    print("\nCiphertext:")
+    stringConversion(cipherText)
+    # Step 6. Invert key matrix
+    inverseKey = FindInverseKey(keyMatrix)
+    # Step 7. Decrpyt ciphertext with inverse key matrix
+    decipheredText = Decrypt(cipherText, inverseKey, matrixSize)
+    # Step 8. Print deciphered plaintext
+    print("\nPlaintext:")
+    stringConversion(decipheredText)
+
     
