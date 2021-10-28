@@ -29,7 +29,7 @@ def stringConversion(textBlocks):
         for x in range(0, len(array)):
             output = output + whitelistCharacters[int(array[x])]
 
-    print(output + "\n")
+    return output
 
 
 # CreateKeyMatrix -- Takes the key input string and converts it into a key matrix
@@ -50,7 +50,7 @@ def PadPlaintext(plaintext, matrixSize):
     if remainder > 0:
         remainder = matrixSize - remainder
         for i in range(remainder):
-            plaintext += 'X'
+            plaintext += '/'
             remainder = remainder - 1
     return plaintext
 
@@ -95,7 +95,17 @@ def FindInverseKey(keyMatrix):
     inverseKeyMatrix = np.array(inverseKeyMatrix)
     inverseKeyMatrix = inverseKeyMatrix.astype(int)
     return inverseKeyMatrix
-    
+
+# ErasePadding -- Removes the padding from the string 
+def ErasePadding(decryptedText):
+    done = False
+    while(done == False):
+        if(decryptedText[len(decryptedText)-1] == '/'):
+            decryptedText = decryptedText.rstrip(decryptedText[-1])
+        else:
+            done = True
+    return decryptedText
+
 
 
 
@@ -144,13 +154,13 @@ if __name__ == '__main__':
     cipherText = Encrypt(blockText, keyMatrix, matrixSize)
     # Step 5. Print ciphertext
     print("\nCiphertext:")
-    stringConversion(cipherText)
+    print(stringConversion(cipherText))
     # Step 6. Invert key matrix
     inverseKey = FindInverseKey(keyMatrix)
     # Step 7. Decrpyt ciphertext with inverse key matrix
     decipheredText = Decrypt(cipherText, inverseKey, matrixSize)
     # Step 8. Print deciphered plaintext
     print("\nPlaintext:")
-    stringConversion(decipheredText)
+    print(ErasePadding(stringConversion(decipheredText)))
 
     
