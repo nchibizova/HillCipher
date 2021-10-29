@@ -138,7 +138,7 @@ while goAgain == "Y":
         plaintext = input("Enter plaintext to be encrypted: ")
         # Matrix Size
         while True:
-            matrixSize = input("\nEnter matrixSize for an n x n matrix: ")
+            matrixSize = input("\nEnter size for an n x n matrix: ")
             try:
                 matrixSize = int(matrixSize)
                 break
@@ -147,7 +147,7 @@ while goAgain == "Y":
         
     
         # Key
-        keyinput = input("\nEnter key to be encrypt with: ")
+        keyinput = input("\nEnter key to encrypt with: ")
         keyinput = padKey(keyinput, matrixSize)
         numberedKey = integerConversion(keyinput)
         
@@ -162,7 +162,7 @@ while goAgain == "Y":
             print("Invalid Key/Matrix input. Determinant of the key matrix is equal to 0.")
             
             # Key
-            keyinput = input("\nEnter key to be encrypt with: ")
+            keyinput = input("\nEnter key to encrypt with: ")
             keyinput = padKey(keyinput, matrixSize)
             numberedKey = integerConversion(keyinput)
             
