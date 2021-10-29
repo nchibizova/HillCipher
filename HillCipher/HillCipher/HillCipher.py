@@ -146,8 +146,10 @@ if __name__ == '__main__':
     # Plaintext Padding
     paddedPlaintext = PadPlaintext(plaintext, matrixSize)
     numberedPlaintext = integerConversion(paddedPlaintext)
-    
-    det = 0
+
+    keyMatrix = CreateKeyMatrix(numberedKey, matrixSize)
+    det = int(np.round(np.linalg.det(keyMatrix)))
+
     while det == 0:
         print("Invalid Key/Matrix input. Determinant of the key matrix is equal to 0.")
         
