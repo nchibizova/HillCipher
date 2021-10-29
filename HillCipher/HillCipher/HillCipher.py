@@ -1,10 +1,8 @@
 # Hill Cipher
 # Nataliya Chibizova, Ethan Morgan, Samuel Reynolds, Chandler Scott
 # 10/27/2021
-# <ENTER DESCRIPTION HERE>
-
-# Converts a string to an integer based off of the index in the whitelist characters set.
-# Returns a set of integers
+# Using Hill Cipher encrypt then decrypt the message
+# Message: “Success is the ability to go from one failure to another with no loss of enthusiasm”
 from egcd import egcd
 import numpy as np
 from sympy import Matrix
@@ -130,55 +128,68 @@ def ErasePadding(decryptedText):
 # Driver -- the program assumes good input.  p, q, and e must all be prime
 # numbers.
 if __name__ == '__main__':
-    # Step 1.  Get user input for plaintext, key, matrix size
+ 
+    goAgain = "Y"
+    
+while goAgain == "Y":
+        # Step 1.  Get user input for plaintext, key, matrix size
    
-    # Plaintext
-    plaintext = input("Enter plaintext to be encrypted: ")
-    
-    # Matrix Size
-    matrixSize = int(input("Enter matrixSize for an n x n matrix: "))
-
-    # Key
-    keyinput = input("Enter key to be encrypt with: ")
-    keyinput = padKey(keyinput, matrixSize)
-    numberedKey = integerConversion(keyinput)
-    
-    # Plaintext Padding
-    paddedPlaintext = PadPlaintext(plaintext, matrixSize)
-    numberedPlaintext = integerConversion(paddedPlaintext)
-
-    keyMatrix = CreateKeyMatrix(numberedKey, matrixSize)
-    det = int(np.round(np.linalg.det(keyMatrix)))
-
-    while det == 0:
-        print("Invalid Key/Matrix input. Determinant of the key matrix is equal to 0.")
+        # Plaintext
+        plaintext = input("Enter plaintext to be encrypted: ")
+        # Matrix Size
+        while True:
+            matrixSize = input("\nEnter matrixSize for an n x n matrix: ")
+            try:
+                matrixSize = int(matrixSize)
+                break
+            except ValueError:
+                print("Invalid input! Please try again." )
         
+    
         # Key
-        keyinput = input("Enter key to be encrypt with: ")
+        keyinput = input("\nEnter key to be encrypt with: ")
         keyinput = padKey(keyinput, matrixSize)
         numberedKey = integerConversion(keyinput)
         
-        # Step 2. Create encryption matrix with key input
+        # Plaintext Padding
+        paddedPlaintext = PadPlaintext(plaintext, matrixSize)
+        numberedPlaintext = integerConversion(paddedPlaintext)
+    
         keyMatrix = CreateKeyMatrix(numberedKey, matrixSize)
-        # calculate determinant of the key matrix
         det = int(np.round(np.linalg.det(keyMatrix)))
-        break
-
-    # Step 3. Create n size blocks of the plaintext
-    blockText = SplitTextToBlocks(numberedPlaintext, matrixSize)
-    # Step 4. Encrypt plaintext with key matrix
-    cipherText = Encrypt(blockText, keyMatrix, matrixSize)
-    # Step 5. Print key & ciphertext
-    print("\nKey:")
-    print(keyinput)
-    print("\nCiphertext:")
-    print(stringConversion(cipherText))
-    # Step 6. Invert key matrix
-    inverseKey = FindInverseKey(keyMatrix, det)
-    # Step 7. Decrpyt ciphertext with inverse key matrix
-    decipheredText = Decrypt(cipherText, inverseKey, matrixSize)
-    # Step 8. Print deciphered plaintext
-    print("\nPlaintext:")
-    print(ErasePadding(stringConversion(decipheredText)))
+    
+        while det == 0:
+            print("Invalid Key/Matrix input. Determinant of the key matrix is equal to 0.")
+            
+            # Key
+            keyinput = input("\nEnter key to be encrypt with: ")
+            keyinput = padKey(keyinput, matrixSize)
+            numberedKey = integerConversion(keyinput)
+            
+            # Step 2. Create encryption matrix with key input
+            keyMatrix = CreateKeyMatrix(numberedKey, matrixSize)
+            # calculate determinant of the key matrix
+            det = int(np.round(np.linalg.det(keyMatrix)))
+            break
+    
+        # Step 3. Create n size blocks of the plaintext
+        blockText = SplitTextToBlocks(numberedPlaintext, matrixSize)
+        # Step 4. Encrypt plaintext with key matrix
+        cipherText = Encrypt(blockText, keyMatrix, matrixSize)
+        # Step 5. Print key & ciphertext
+        print("\nKey:")
+        print(keyinput)
+        print("\nCiphertext:")
+        print(stringConversion(cipherText))
+        # Step 6. Invert key matrix
+        inverseKey = FindInverseKey(keyMatrix, det)
+        # Step 7. Decrpyt ciphertext with inverse key matrix
+        decipheredText = Decrypt(cipherText, inverseKey, matrixSize)
+        # Step 8. Print deciphered plaintext
+        print("\nPlaintext:")
+        print(ErasePadding(stringConversion(decipheredText)))
+        # Step 8. Ask user another input
+        goAgain = input("\nWould you like to encrypt/decrypt another message?(Y/N): ")
+        print("\n*********************************************\n")
 
     
